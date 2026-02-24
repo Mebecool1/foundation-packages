@@ -1,0 +1,34 @@
+extern from "raylib.h" import *
+
+func InitW(sizex, sizey, name)
+  InitWindow(sizex,sizey,name)
+end
+
+func DrawRec(posx,posy,sizex,sizey,color)
+  DrawRectangle(posx,posy,sizex,sizey,color)
+end
+func cBackground(color)
+  ClearBackground(color)
+end
+func TargetFPS(fps)
+  SetTargetFPS(fps)
+end
+func bDraw()
+  BeginDrawing()
+end
+func sDraw()
+  EndDrawing()
+end
+func CloseW()
+  CloseWindow()
+end 
+
+func Text(posx,posy,size,color,text)
+  DrawText(text,posx,posy,size,color)
+end
+
+
+
+
+
+  
