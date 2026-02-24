@@ -1,0 +1,13 @@
+func abs(num)
+  if abs < 0 then
+    return -num 
+  return num 
+end 
+func in_range(range_l, range_r, num)
+  if range_l > num then
+      return 0
+  if range_r < num then
+      return 0
+  return 1
+end 
+ 
