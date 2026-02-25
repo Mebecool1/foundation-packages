@@ -38,3 +38,15 @@ func div(num, numt, pres)
   end
   return quotient
 end
+
+
+func sqrt(x, iterations)
+  if x < 0 then
+    return 0
+  end
+  float guess = div(x,2,3)
+  for int i = 1, iterations do
+    guess = 0.5 * (guess + x / guess)
+  end
+  return guess
+end
