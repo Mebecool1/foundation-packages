@@ -10,4 +10,31 @@ func in_range(range_l, range_r, num)
       return 0
   return 1
 end 
- 
+
+print("This wont show up!")
+func div(num, numt, pres)
+  float quotient = 0
+  float step = 1.0
+  bool positive = true
+  if (num < 0 and numt > 0) or (num > 0 and numt < 0) then
+    positive = false
+  end
+  num = math.abs(num)
+  numt = math.abs(numt)
+  while num >= numt do
+    num = num - numt
+    quotient = quotient + 1
+  end
+  step = 0.1
+  for int i = 1, pres do
+    while num >= numt * step do
+      num = num - numt * step
+      quotient = quotient + step
+    end
+    step = step / 10
+  end
+  if not positive then
+    quotient = -quotient
+  end
+  return quotient
+end
