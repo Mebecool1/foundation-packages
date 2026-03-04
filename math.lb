@@ -1,18 +1,21 @@
-func abs(num)
+function abs(num)
   if abs < 0 then
     return -num 
+  end
   return num 
 end 
-func in_range(range_l, range_r, num)
+function in_range(range_l, range_r, num)
   if range_l > num then
       return 0
+  end
   if range_r < num then
       return 0
+  end
   return 1
 end 
 
 print("This wont show up!")
-func div(num, numt, pres)
+function div(num, numt, pres)
   float quotient = 0
   float step = 1.0
   bool positive = true
@@ -40,7 +43,7 @@ func div(num, numt, pres)
 end
 
 
-func sqrt(x, iterations)
+function sqrt(x, iterations)
   if x < 0 then
     return 0
   end
