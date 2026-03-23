@@ -1,0 +1,709 @@
+# ============================================================
+# lstdlib.lh — LuaBase Standard Library
+# link "lstdlib.lh"
+# ============================================================
+link "stdio.h"
+link "stdlib.h"
+link "string.h"
+link "math.h"
+link "time.h"
+link "unistd.h"
+link "ctype.h"
+
+# ============================================================
+# TYPES
+# ============================================================
+
+type Vec2i {
+    int x
+    int y
+}
+
+type Vec2f {
+    float x
+    float y
+}
+
+type Vec3i {
+    int x
+    int y
+    int z
+}
+
+type Vec3f {
+    float x
+    float y
+    float z
+}
+
+type Rect {
+    int x
+    int y
+    int w
+    int h
+}
+
+type Range {
+    int lo
+    int hi
+}
+
+# ============================================================
+# MATH — INTEGER
+# ============================================================
+
+function int abs_i(int n) {
+    if n < 0 then
+        return -(n)
+    else
+        return n
+    end
+}
+
+function int sign(int n) {
+    if n > 0 then
+        return 1
+    else
+        if n < 0 then
+            return -1
+        else
+            return 0
+        end
+    end
+}
+
+function int max_i(int a, int b) {
+    if a > b then
+        return a
+    else
+        return b
+    end
+}
+
+function int min_i(int a, int b) {
+    if a < b then
+        return a
+    else
+        return b
+    end
+}
+
+function int clamp_i(int v, int lo, int hi) {
+    if v < lo then
+        return lo
+    else
+        if v > hi then
+            return hi
+        else
+            return v
+        end
+    end
+}
+
+function int sq_i(int n) {
+    return n * n
+}
+
+function int cube_i(int n) {
+    return n * n * n
+}
+
+function int pow_i(int base, int exp) {
+    int result = 1
+    int i = 0
+    while i < exp do
+        result = result * base
+        i = i + 1
+    end
+    return result
+}
+
+function int gcd(int a, int b) {
+    int ta = abs_i(a)
+    int tb = abs_i(b)
+    while tb != 0 do
+        int tmp = tb
+        tb = ta % tb
+        ta = tmp
+    end
+    return ta
+}
+
+function int lcm(int a, int b) {
+    return (a / gcd(a, b)) * b
+}
+
+function int is_even(int n) {
+    if (n % 2) == 0 then
+        return 1
+    else
+        return 0
+    end
+}
+
+function int is_odd(int n) {
+    if (n % 2) != 0 then
+        return 1
+    else
+        return 0
+    end
+}
+
+function int is_prime(int n) {
+    if n < 2 then
+        return 0
+    else
+        if n == 2 then
+            return 1
+        else
+            if is_even(n) == 1 then
+                return 0
+            else
+                int i = 3
+                int found = 0
+                while (i * i) <= n do
+                    if (n % i) == 0 then
+                        found = 1
+                        i = n
+                    else
+                        i = i + 2
+                    end
+                end
+                if found == 1 then
+                    return 0
+                else
+                    return 1
+                end
+            end
+        end
+    end
+}
+
+function int factorial(int n) {
+    if n <= 1 then
+        return 1
+    else
+        return n * factorial(n - 1)
+    end
+}
+
+function int fibonacci(int n) {
+    if n <= 0 then
+        return 0
+    else
+        if n == 1 then
+            return 1
+        else
+            return fibonacci(n - 1) + fibonacci(n - 2)
+        end
+    end
+}
+
+function int sum_range(int lo, int hi) {
+    int total = 0
+    int i = lo
+    while i <= hi do
+        total = total + i
+        i = i + 1
+    end
+    return total
+}
+
+function int in_range_i(int v, int lo, int hi) {
+    if (v >= lo) && (v <= hi) then
+        return 1
+    else
+        return 0
+    end
+}
+
+# ============================================================
+# MATH — FLOAT
+# ============================================================
+
+function float abs_f(float n) {
+    if n < 0.0 then
+        return -(n)
+    else
+        return n
+    end
+}
+
+function float max_f(float a, float b) {
+    if a > b then
+        return a
+    else
+        return b
+    end
+}
+
+function float min_f(float a, float b) {
+    if a < b then
+        return a
+    else
+        return b
+    end
+}
+
+function float clamp_f(float v, float lo, float hi) {
+    if v < lo then
+        return lo
+    else
+        if v > hi then
+            return hi
+        else
+            return v
+        end
+    end
+}
+
+function float lerp(float a, float b, float t) {
+    return a + (b - a) * t
+}
+
+function float map_range(float v, float in_lo, float in_hi, float out_lo, float out_hi) {
+    return out_lo + (v - in_lo) * (out_hi - out_lo) / (in_hi - in_lo)
+}
+
+function float deg_to_rad(float deg) {
+    return deg * 3.14159265358979 / 180.0
+}
+
+function float rad_to_deg(float rad) {
+    return rad * 180.0 / 3.14159265358979
+}
+
+function float sqrt_f(float n) {
+    return sqrt(n)
+}
+
+function float pow_f(float base, float exp) {
+    return pow(base, exp)
+}
+
+function float sin_f(float x) {
+    return sin(x)
+}
+
+function float cos_f(float x) {
+    return cos(x)
+}
+
+function float tan_f(float x) {
+    return tan(x)
+}
+
+function float floor_f(float x) {
+    return floor(x)
+}
+
+function float ceil_f(float x) {
+    return ceil(x)
+}
+
+function float round_f(float x) {
+    return floor(x + 0.5)
+}
+
+function float in_range_f(float v, float lo, float hi) {
+    if (v >= lo) && (v <= hi) then
+        return 1
+    else
+        return 0
+    end
+}
+
+# ============================================================
+# MATH — VEC2
+# ============================================================
+
+function int vec2i_dot(int ax, int ay, int bx, int by) {
+    return (ax * bx) + (ay * by)
+}
+
+function int vec2i_manhattan(int ax, int ay, int bx, int by) {
+    return abs_i(ax - bx) + abs_i(ay - by)
+}
+
+function int vec2i_len_sq(int x, int y) {
+    return (x * x) + (y * y)
+}
+
+function float vec2f_dot(float ax, float ay, float bx, float by) {
+    return (ax * bx) + (ay * by)
+}
+
+function float vec2f_len(float x, float y) {
+    return sqrt_f((x * x) + (y * y))
+}
+
+function float vec2f_dist(float ax, float ay, float bx, float by) {
+    float dx = ax - bx
+    float dy = ay - by
+    return sqrt_f((dx * dx) + (dy * dy))
+}
+
+# ============================================================
+# STRING
+# ============================================================
+
+function int str_len(str s) {
+    return strlen(s)
+}
+
+function int str_eq(str a, str b) {
+    if strcmp(a, b) == 0 then
+        return 1
+    else
+        return 0
+    end
+}
+
+function int str_neq(str a, str b) {
+    if strcmp(a, b) != 0 then
+        return 1
+    else
+        return 0
+    end
+}
+
+function int str_contains(str haystack, str needle) {
+    if strstr(haystack, needle) != 0 then
+        return 1
+    else
+        return 0
+    end
+}
+
+function int str_starts_with(str s, str prefix) {
+    int plen = strlen(prefix)
+    if strncmp(s, prefix, plen) == 0 then
+        return 1
+    else
+        return 0
+    end
+}
+
+function int str_empty(str s) {
+    if strlen(s) == 0 then
+        return 1
+    else
+        return 0
+    end
+}
+
+function int str_char_at(str s, int i) {
+    return s[i]
+}
+
+function int str_to_int(str s) {
+    return atoi(s)
+}
+
+function float str_to_float(str s) {
+    return atof(s)
+}
+
+function str str_copy(str dst, str src) {
+    strcpy(dst, src)
+    return dst
+}
+
+function str str_cat(str dst, str src) {
+    strcat(dst, src)
+    return dst
+}
+
+function int char_is_digit(int c) {
+    if isdigit(c) != 0 then
+        return 1
+    else
+        return 0
+    end
+}
+
+function int char_is_alpha(int c) {
+    if isalpha(c) != 0 then
+        return 1
+    else
+        return 0
+    end
+}
+
+function int char_is_space(int c) {
+    if isspace(c) != 0 then
+        return 1
+    else
+        return 0
+    end
+}
+
+function int char_to_upper(int c) {
+    return toupper(c)
+}
+
+function int char_to_lower(int c) {
+    return tolower(c)
+}
+
+# ============================================================
+# ARRAY (int, max size 256)
+# ============================================================
+
+function int arr_sum(int arr[256], int len) {
+    int total = 0
+    int i = 0
+    while i < len do
+        total = total + arr[i]
+        i = i + 1
+    end
+    return total
+}
+
+function int arr_min(int arr[256], int len) {
+    int m = arr[0]
+    int i = 1
+    while i < len do
+        if arr[i] < m then
+            m = arr[i]
+        else
+            m = m
+        end
+        i = i + 1
+    end
+    return m
+}
+
+function int arr_max(int arr[256], int len) {
+    int m = arr[0]
+    int i = 1
+    while i < len do
+        if arr[i] > m then
+            m = arr[i]
+        else
+            m = m
+        end
+        i = i + 1
+    end
+    return m
+}
+
+function float arr_avg(int arr[256], int len) {
+    int total = 0
+    int i = 0
+    while i < len do
+        total = total + arr[i]
+        i = i + 1
+    end
+    return total / len
+}
+
+function int arr_contains(int arr[256], int len, int val) {
+    int i = 0
+    while i < len do
+        if arr[i] == val then
+            return 1
+        else
+            i = i + 1
+        end
+    end
+    return 0
+}
+
+function int arr_index_of(int arr[256], int len, int val) {
+    int i = 0
+    while i < len do
+        if arr[i] == val then
+            return i
+        else
+            i = i + 1
+        end
+    end
+    return -1
+}
+
+function int arr_count(int arr[256], int len, int val) {
+    int n = 0
+    int i = 0
+    while i < len do
+        if arr[i] == val then
+            n = n + 1
+        else
+            n = n
+        end
+        i = i + 1
+    end
+    return n
+}
+
+function int arr_reverse(int arr[256], int len) {
+    int i = 0
+    int j = len - 1
+    while i < j do
+        int tmp = arr[i]
+        arr[i] = arr[j]
+        arr[j] = tmp
+        i = i + 1
+        j = j - 1
+    end
+    return 1
+}
+
+function int arr_sort(int arr[256], int len) {
+    int i = 0
+    while i < len do
+        int j = 0
+        while j < (len - i - 1) do
+            if arr[j] > arr[j + 1] then
+                int tmp = arr[j]
+                arr[j] = arr[j + 1]
+                arr[j + 1] = tmp
+            else
+                j = j
+            end
+            j = j + 1
+        end
+        i = i + 1
+    end
+    return 1
+}
+
+function int arr_fill(int arr[256], int len, int val) {
+    int i = 0
+    while i < len do
+        arr[i] = val
+        i = i + 1
+    end
+    return 1
+}
+
+# ============================================================
+# IO
+# ============================================================
+
+function int println(str s) {
+    printf("%s\n", s)
+    return 1
+}
+
+function int print_int(int n) {
+    printf("%d\n", n)
+    return 1
+}
+
+function int print_float(float f) {
+    printf("%f\n", f)
+    return 1
+}
+
+function int print_sep() {
+    printf("----------------------------------------\n")
+    return 1
+}
+
+function int print_banner(str title) {
+    printf("=== %s ===\n", title)
+    return 1
+}
+
+function int file_exists(str path) {
+    FILE* f = fopen(path, "r")
+    if f != 0 then
+        fclose(f)
+        return 1
+    else
+        return 0
+    end
+}
+
+# ============================================================
+# SYSTEM
+# ============================================================
+
+function long time_now() {
+    return time(0)
+}
+
+function int sleep_ms(int ms) {
+    usleep(ms * 1000)
+    return 1
+}
+
+function int sleep_s(int s) {
+    sleep(s)
+    return 1
+}
+
+function int sys_rand() {
+    return rand()
+}
+
+function int sys_rand_range(int lo, int hi) {
+    return lo + (rand() % (hi - lo + 1))
+}
+
+function int sys_srand(int seed) {
+    srand(seed)
+    return 1
+}
+
+function str sys_getenv(str name) {
+    str val = getenv(name)
+    if val != 0 then
+        return val
+    else
+        return ""
+    end
+}
+
+function int sys_exit(int code) {
+    exit(code)
+    return 0
+}
+
+# ============================================================
+# STANDALONE TESTS (discarded when linked)
+# ============================================================
+print("lstdlib.lh standalone test\n")
+print_sep()
+print_banner("MATH INT")
+print("abs_i(-9)=",    abs_i(-9),       "\n")
+print("max_i(3,7)=",   max_i(3, 7),     "\n")
+print("min_i(3,7)=",   min_i(3, 7),     "\n")
+print("clamp(15,0,10)=",clamp_i(15,0,10),"\n")
+print("gcd(48,18)=",   gcd(48, 18),     "\n")
+print("lcm(4,6)=",     lcm(4, 6),       "\n")
+print("is_prime(17)=", is_prime(17),    "\n")
+print("factorial(6)=", factorial(6),    "\n")
+print("fibonacci(10)=",fibonacci(10),   "\n")
+print("sum_range(1,100)=",sum_range(1,100),"\n")
+print_sep()
+print_banner("MATH FLOAT")
+print("lerp(0,10,0.5)=",  lerp(0.0,10.0,0.5),      "\n")
+print("clamp_f=",          clamp_f(1.5,0.0,1.0),    "\n")
+print("deg_to_rad(90)=",   deg_to_rad(90.0),         "\n")
+print("sqrt_f(16)=",       sqrt_f(16.0),             "\n")
+print("vec2f_len(3,4)=",   vec2f_len(3.0, 4.0),      "\n")
+print_sep()
+print_banner("STRING")
+print("str_len(hello)=",   str_len("hello"),          "\n")
+print("str_eq(hi,hi)=",    str_eq("hi","hi"),         "\n")
+print("str_contains=",     str_contains("foobar","oba"),"\n")
+print("str_to_int(42)=",   str_to_int("42"),          "\n")
+print_sep()
+print_banner("ARRAY")
+int data[8] = {5, 3, 8, 1, 9, 2, 7, 4}
+print("sum=",  arr_sum(data, 8),      "\n")
+print("min=",  arr_min(data, 8),      "\n")
+print("max=",  arr_max(data, 8),      "\n")
+arr_sort(data, 8)
+print("sorted[0]=", data[0],          "\n")
+print("sorted[7]=", data[7],          "\n")
+print_sep()
+print_banner("SYSTEM")
+sys_srand(42)
+print("rand(1,100)=", sys_rand_range(1,100), "\n")
+sleep_ms(5)
+print("slept 5ms\n")
+print_sep()
+print("lstdlib.lh OK\n")
