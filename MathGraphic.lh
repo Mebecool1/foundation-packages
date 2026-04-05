@@ -1,0 +1,1029 @@
+type vec2f {
+    float x
+    float y
+}
+type vec3f {
+    float x
+    float y
+    float z
+}
+type vec4f {
+    float x
+    float y
+    float z
+    float w
+}
+type mat4f {
+    vec4f x
+    vec4f y
+    vec4f z
+    vec4f w
+}
+type quatf {
+    float x
+    float y
+    float z
+    float w
+}
+type rayf {
+    vec3f origin
+    vec3f direction
+}
+type spheref {
+    vec3f center
+    float radius
+}
+type aabbf {
+    vec3f min
+    vec3f max
+}
+type cubef {
+    vec3f center
+    float size
+}
+type plane3f {
+    vec3f normal
+    float distance
+}
+type mat4fa {
+  float data[16]
+}
+
+// Result types for ray intersection tests
+type RayIntersectResult {
+    bool hit
+    float t
+}
+
+// Constants
+// float PI = 3.141592653589793  // Note: Using inline value instead
+
+// Helper functions
+function float clamp(float x, float minVal, float maxVal) {
+    if (x < minVal) then
+        return minVal
+    else
+        if (x > maxVal) then
+            return maxVal
+        else
+            return x
+        end
+    end
+}
+
+function float max(float a, float b) {
+    if (a > b) then
+        return a
+    else
+        return b
+    end
+}
+
+function vec2f v2(float x, float y) {
+    vec2f v
+    v.x = x
+    v.y = y
+    return v
+}
+function vec3f v3(float x, float y, float z) {
+    vec3f v
+    v.x = x
+    v.y = y
+    v.z = z
+    return v
+}
+function vec4f v4(float x, float y, float z, float w) {
+    vec4f v
+    v.x = x
+    v.y = y
+    v.z = z
+    v.w = w
+    return v
+}
+function vec4f promote3f(vec3f v) {
+    return v4(v.x, v.y, v.z, 1.0)
+}
+function vec2f vec2Add (vec2f a, vec2f b) {
+    return v2(a.x + b.x, a.y + b.y)
+}
+function vec3f vec3Add (vec3f a, vec3f b) {
+    return v3(a.x + b.x, a.y + b.y, a.z +b.z)
+}
+function vec4f vec4Add (vec4f a, vec4f b) {
+    return v4(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w)
+}   
+function vec2f vec2Sub (vec2f a, vec2f b) {
+    return v2(a.x - b.x, a.y - b.y)
+}
+function vec3f vec3Sub (vec3f a, vec3f b) {
+    return v3(a.x - b.x, a.y - b.y, a.z - b.z)
+}
+function vec4f vec4Sub (vec4f a, vec4f b) {
+    return v4(a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w)
+}
+function vec2f vec2Mul (vec2f a, vec2f b) {
+    return v2(a.x * b.x, a.y * b.y)
+}
+function vec3f vec3Mul (vec3f a, vec3f b) {
+    return v3(a.x * b.x, a.y * b.y, a.z * b.z)
+}
+function vec4f vec4Mul (vec4f a, vec4f b) {
+    return v4(a.x * b.x, a.y * b.y, a.z * b.z, a.w * b.w)
+}
+function vec2f vec2Div (vec2f a, vec2f b) {
+    return v2(a.x / b.x, a.y / b.y)
+}
+function vec3f vec3Div (vec3f a, vec3f b) {
+    return v3(a.x / b.x, a.y / b.y, a.z / b.z)
+}
+function vec4f vec4Div (vec4f a, vec4f b) {
+    return v4(a.x / b.x, a.y / b.y, a.z / b.z, a.w / b.w)
+}
+function vec2f vec2Scale (vec2f v, float s) {
+    return v2(v.x * s, v.y * s)
+}
+function vec3f vec3Scale (vec3f v, float s) {
+    return v3(v.x * s, v.y * s, v.z * s)
+}
+function vec4f vec4Scale (vec4f v, float s) {
+    return v4(v.x * s, v.y * s, v.z * s, v.w * s)
+}
+function float vec2Dot (vec2f a, vec2f b) {
+    return a.x * b.x + a.y * b.y
+}
+function float vec3Dot (vec3f a, vec3f b) {
+    return a.x * b.x + a.y * b.y + a.z * b.z
+}
+function float vec4Dot (vec4f a, vec4f b) {
+    return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w
+}
+function vec3f vec3Cross (vec3f a, vec3f b) {
+    return v3(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x)
+}
+function float vec2Length (vec2f v) {
+    return sqrt(v.x * v.x + v.y * v.y)
+}
+function float vec3Length (vec3f v) {
+    return sqrt(v.x * v.x + v.y * v.y + v.z * v.z)
+}
+function float vec4Length (vec4f v) {
+    return sqrt(v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w)
+}
+function vec2f vec2Normalize (vec2f v) {
+    float len = vec2Length(v)
+    if (len > 0.0) then
+        return vec2Scale(v, 1.0 / len)
+    else
+        return v2(0.0, 0.0)
+    end
+}
+function vec3f vec3Normalize (vec3f v) {
+    float len = vec3Length(v)
+    if (len > 0.0) then
+        return vec3Scale(v, 1.0 / len)
+    else
+        return v3(0.0, 0.0, 0.0)
+    end
+}
+function vec4f vec4Normalize (vec4f v) {
+    float len = vec4Length(v)
+    if (len > 0.0) then
+        return vec4Scale(v, 1.0 / len)
+    else
+        return v4(0.0, 0.0, 0.0, 0.0)
+    end
+}
+// Define mul functions before they're used
+function vec4f mulMat4Vec(mat4f m, vec4f v) {
+    vec4f r
+    r.x = m.x.x * v.x + m.y.x * v.y + m.z.x * v.z + m.w.x * v.w
+    r.y = m.x.y * v.x + m.y.y * v.y + m.z.y * v.z + m.w.y * v.w
+    r.z = m.x.z * v.x + m.y.z * v.y + m.z.z * v.z + m.w.z * v.w
+    r.w = m.x.w * v.x + m.y.w * v.y + m.z.w * v.z + m.w.w * v.w
+    return r
+}
+function mat4f mulMat4Mat4(mat4f a, mat4f b) {
+    mat4f r
+    r.x.x = a.x.x * b.x.x + a.y.x * b.x.y + a.z.x * b.x.z + a.w.x * b.x.w
+    r.x.y = a.x.y * b.x.x + a.y.y * b.x.y + a.z.y * b.x.z + a.w.y * b.x.w
+    r.x.z = a.x.z * b.x.x + a.y.z * b.x.y + a.z.z * b.x.z + a.w.z * b.x.w
+    r.x.w = a.x.w * b.x.x + a.y.w * b.x.y + a.z.w * b.x.z + a.w.w * b.x.w
+    r.y.x = a.x.x * b.y.x + a.y.x * b.y.y + a.z.x * b.y.z + a.w.x * b.y.w
+    r.y.y = a.x.y * b.y.x + a.y.y * b.y.y + a.z.y * b.y.z + a.w.y * b.y.w
+    r.y.z = a.x.z * b.y.x + a.y.z * b.y.y + a.z.z * b.y.z + a.w.z * b.y.w
+    r.y.w = a.x.w * b.y.x + a.y.w * b.y.y + a.z.w * b.y.z + a.w.w * b.y.w
+    r.z.x = a.x.x * b.z.x + a.y.x * b.z.y + a.z.x * b.z.z + a.w.x * b.z.w
+    r.z.y = a.x.y * b.z.x + a.y.y * b.z.y + a.z.y * b.z.z + a.w.y * b.z.w
+    r.z.z = a.x.z * b.z.x + a.y.z * b.z.y + a.z.z * b.z.z + a.w.z * b.z.w
+    r.z.w = a.x.w * b.z.x + a.y.w * b.z.y + a.z.w * b.z.z + a.w.w * b.z.w
+    r.w.x = a.x.x * b.w.x + a.y.x * b.w.y + a.z.x * b.w.z + a.w.x * b.w.w
+    r.w.y = a.x.y * b.w.x + a.y.y * b.w.y + a.z.y * b.w.z + a.w.y * b.w.w
+    r.w.z = a.x.z * b.w.x + a.y.z * b.w.y + a.z.z * b.w.z + a.w.z * b.w.w
+    r.w.w = a.x.w * b.w.x + a.y.w * b.w.y + a.z.w * b.w.z + a.w.w * b.w.w
+    return r
+}
+function quatf mulQuatQuat(quatf a, quatf b) {
+    quatf q
+    q.x = a.w * b.x + a.x * b.w + a.y * b.z - a.z * b.y
+    q.y = a.w * b.y - a.x * b.z + a.y * b.w + a.z * b.x
+    q.z = a.w * b.z + a.x * b.y - a.y * b.x + a.z * b.w
+    q.w = a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z
+    return q
+}
+function quatf mulQuatVec(quatf q, vec3f v) {
+    quatf p
+    p.x = v.x
+    p.y = v.y
+    p.z = v.z
+    p.w = 0.0
+    quatf q_conjugate
+    q_conjugate.x = -q.x
+    q_conjugate.y = -q.y
+    q_conjugate.z = -q.z
+    q_conjugate.w = q.w
+    quatf r = mulQuatQuat(mulQuatQuat(q, p), q_conjugate)
+    return r
+}
+// what else do we need? 
+// we need:
+/*
+- mat4f identity()
+- mat4f translate(mat4f m, vec3f v)
+- mat4f rotate(mat4f m, float angle, vec3f axis)
+- mat4f scale(mat4f m, vec3f v)
+- vec4f mulMat4Vec(mat4f m, vec4f v)
+- mat4f mulMat4Mat4(mat4f a, mat4f b)
+- quatf fromAxisAngle(vec3f axis, float angle)
+- quatf mulQuatQuat(quatf a, quatf b)
+- quatf mulQuatVec(quatf q, vec3f v)
+*/
+// lets make them!
+function mat4f identity() {
+    mat4f m
+    m.x = v4(1.0, 0.0, 0.0, 0.0)
+    m.y = v4(0.0, 1.0, 0.0, 0.0)
+    m.z = v4(0.0, 0.0, 1.0, 0.0)
+    m.w = v4(0.0, 0.0, 0.0, 1.0)
+    return m
+}
+function mat4f translate(mat4f m, vec3f v) {
+    mat4f t = identity()
+    t.w = v4(v.x, v.y, v.z, 1.0)
+    return mulMat4Mat4(m, t)
+}
+function mat4f rotate(mat4f m, float angle, vec3f axis) {
+    float c = cos(angle)
+    float s = sin(angle)
+    float t = 1.0 - c
+    vec3f n = vec3Normalize(axis)
+    mat4f r
+    r.x = v4(t * n.x * n.x + c, t * n.x * n.y - s * n.z, t * n.x * n.z + s * n.y, 0.0)
+    r.y = v4(t * n.x * n.y + s * n.z, t * n.y * n.y + c, t * n.y * n.z - s * n.x, 0.0)
+    r.z = v4(t * n.x * n.z - s * n.y, t * n.y * n.z + s * n.x, t * n.z * n.z + c, 0.0)
+    r.w = v4(0.0, 0.0, 0.0, 1.0)
+    return mulMat4Mat4(m, r)
+}
+function mat4f scale(mat4f m, vec3f v) {
+    mat4f s = identity()
+    s.x.x = v.x
+    s.y.y = v.y
+    s.z.z = v.z
+    return mulMat4Mat4(m, s)
+}
+function quatf fromAxisAngle(vec3f axis, float angle) {
+    float s = sin(angle * 0.5)
+    quatf q
+    q.x = axis.x * s
+    q.y = axis.y * s
+    q.z = axis.z * s
+    q.w = cos(angle * 0.5)
+    return q
+}
+/*
+what else do we need? 
+- mat4f perspective(float fov, float aspect, float near, float far)
+- mat4f lookAt(vec3f eye, vec3f center, vec3f up)
+- mat4f ortho(float left, float right, float bottom, float top, float near, float far)
+- mat4f inverse(mat4f m)
+- mat4f transpose(mat4f m)
+- quatf fromEuler(vec3f euler)
+- vec3f toEuler(quatf q)
+- quatf slerp(quatf a, quatf b, float t)
+- quatf fromMat4(mat4f m)
+- mat4f fromQuat(quatf q)
+- vec3f project(vec3f point, mat4f model, mat4f view, mat4f projection)
+- vec3f unproject(vec3f point, mat4f model, mat4f view, mat4f projection)
+- rayf screenPointToRay(vec2f screenPoint, mat4f view, mat4f projection, vec2f screenSize)
+- bool intersectRaySphere(rayf ray, spheref sphere, ptr float t)
+- bool intersectRayAABB(rayf ray, aabbf box, ptr float t)
+*/
+// we already implemented all of them!
+function mat4f perspective(float fov, float aspect, float near, float far) {
+    float tanHalfFov = tan(fov * 0.5)
+    mat4f m
+    m.x = v4(1.0 / (aspect * tanHalfFov), 0.0, 0.0, 0.0)
+    m.y = v4(0.0, 1.0 / tanHalfFov, 0.0, 0.0)
+    m.z = v4(0.0, 0.0, -(far + near) / (far - near), -1.0)
+    m.w = v4(0.0, 0.0, -(2.0 * far * near) / (far - near), 0.0)
+    return m
+}
+function mat4f lookAt(vec3f eye, vec3f center, vec3f up) {
+    vec3f f = vec3Normalize(vec3Sub(center, eye))
+    vec3f s = vec3Normalize(vec3Cross(f, up))
+    vec3f u = vec3Cross(s, f)
+    mat4f m
+    m.x = v4(s.x, u.x, -f.x, 0.0)
+    m.y = v4(s.y, u.y, -f.y, 0.0)
+    m.z = v4(s.z, u.z, -f.z, 0.0)
+    m.w = v4(-vec3Dot(s, eye), -vec3Dot(u, eye), vec3Dot(f, eye), 1.0)
+    return m
+}
+function mat4f ortho(float left, float right, float bottom, float top, float near, float far) {
+    mat4f m
+    m.x = v4(2.0 / (right - left), 0.0, 0.0, 0.0)
+    m.y = v4(0.0, 2.0 / (top - bottom), 0.0, 0.0)
+    m.z = v4(0.0, 0.0, -2.0 / (far - near), 0.0)
+    m.w = v4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), -(far + near) / (far - near), 1.0)
+    return m
+}
+function mat4f inverse(mat4f m) {
+    mat4f inv
+    float det
+    int i
+    inv.x.x = m.y.y * m.z.z * m.w.w - m.y.y * m.z.w * m.w.z - m.z.y * m.y.z * m.w.w + m.z.y * m.y.w * m.w.z + m.w.y * m.y.z * m.z.w - m.w.y * m.y.w * m.z.z
+    inv.x.y = -m.y.x * m.z.z * m.w.w + m.y.x * m.z.w * m.w.z + m.z.x * m.y.z * m.w.w - m.z.x * m.y.w * m.w.z - m.w.x * m.y.z * m.z.w + m.w.x * m.y.w * m.z.z
+    inv.x.z = m.y.x * m.z.y * m.w.w - m.y.x * m.z.w * m.w.y - m.z.x * m.y.y * m.w.w + m.z.x * m.y.w * m.w.y + m.w.x * m.y.y * m.z.w - m.w.x * m.y.w * m.z.y
+    inv.x.w = -m.y.x * m.z.y * m.w.z + m.y.x * m.z.z * m.w.y + m.z.x * m.y.y * m.w.z - m.z.x * m.y.z * m.w.y - m.w.x * m.y.y * m.z.z + m.w.x * m.y.z * m.z.y
+    inv.y.x = -m.x.y * m.z.z * m.w.w + m.x.y * m.z.w * m.w.z + m.z.y * m.x.z * m.w.w - m.z.y * m.x.w * m.w.z - m.w.y * m.x.z * m.z.w + m.w.y * m.x.w * m.z.z
+    inv.y.y = m.x.x * m.z.z * m.w.w - m.x.x * m.z.w * m.w.z - m.z.x * m.x.z * m.w.w + m.z.x * m.x.w * m.w.z + m.w.x * m.x.z * m.z.w - m.w.x * m.x.w * m.z.z
+    inv.y.z = -m.x.x * m.z.y * m.w.w + m.x.x * m.z.w * m.w.y + m.z.x * m.x.y * m.w.w - m.z.x * m.x.w * m.w.y - m.w.x * m.x.y * m.z.w + m.w.x * m.x.w * m.z.y
+    inv.y.w = m.x.x * m.z.y * m.w.z - m.x.x * m.z.z * m.w.y - m.z.x * m.x.y * m.w.z + m.z.x * m.x.z * m.w.y + m.w.x * m.x.y * m.z.z - m.w.x * m.x.z * m.z.y
+    inv.z.x = m.x.y * m.y.z * m.w.w - m.x.y * m.y.w * m.w.z - m.y.y * m.x.z * m.w.w + m.y.y * m.x.w * m.w.z + m.w.y * m.x.z * m.y.w - m.w.y * m.x.w * m.y.z
+    inv.z.y = -m.x.x * m.y.z * m.w.w + m.x.x * m.y.w * m.w.z + m.y.x * m.x.z * m.w.w - m.y.x * m.x.w * m.w.z - m.w.x * m.x.z * m.y.w + m.w.x * m.x.w * m.y.z
+    inv.z.z = m.x.x * m.y.y * m.w.w - m.x.x * m.y.w * m.w.y - m.y.x * m.x.y * m.w.w + m.y.x * m.x.w * m.w.y + m.w.x * m.x.y * m.y.w - m.w.x * m.x.w * m.y.y
+    inv.z.w = -m.x.x * m.y.y * m.w.z + m.x.x * m.y.z * m.w.y + m.y.x * m.x.y * m.w.z - m.y.x * m.x.z * m.w.y - m.w.x * m.x.y * m.y.z + m.w.x * m.x.z * m.y.y
+    inv.w.x = -m.x.y * m.y.z * m.z.w + m.x.y * m.y.w * m.z.z + m.y.y * m.x.z * m.z.w - m.y.y * m.x.w * m.z.z - m.z.y * m.x.z * m.y.w + m.z.y * m.x.w * m.y.z
+    inv.w.y = m.x.x * m.y.z * m.z.w - m.x.x * m.y.w * m.z.z - m.y.x * m.x.z * m.z.w + m.y.x * m.x.w * m.z.z + m.z.x * m.x.z * m.y.w - m.z.x * m.x.w * m.y.z
+    inv.w.z = -m.x.x * m.y.y * m.z.w + m.x.x * m.y.w * m.z.y + m.y.x * m.x.y * m.z.w - m.y.x * m.x.w * m.z.y - m.z.x * m.x.y * m.y.w + m.z.x * m.x.w * m.y.y
+    inv.w.w = m.x.x * m.y.y * m.z.z - m.x.x * m.y.z * m.z.y - m.y.x * m.x.y * m.z.z + m.y.x * m.x.z * m.z.y + m.z.x * m.x.y * m.y.z - m.z.x * m.x.z * m.y.y
+    det = m.x.x * inv.x.x + m.x.y * inv.x.y + m.x.z * inv.x.z + m.x.w * inv.x.w
+    if (det == 0.0) then
+        return identity()
+    end
+    det = 1.0 / det
+    inv.x.x = inv.x.x * det
+    inv.x.y = inv.x.y * det
+    inv.x.z = inv.x.z * det
+    inv.x.w = inv.x.w * det
+    inv.y.x = inv.y.x * det
+    inv.y.y = inv.y.y * det
+    inv.y.z = inv.y.z * det
+    inv.y.w = inv.y.w * det
+    inv.z.x = inv.z.x * det
+    inv.z.y = inv.z.y * det
+    inv.z.z = inv.z.z * det
+    inv.z.w = inv.z.w * det
+    inv.w.x = inv.w.x * det
+    inv.w.y = inv.w.y * det
+    inv.w.z = inv.w.z * det
+    inv.w.w = inv.w.w * det
+    return inv
+}
+function mat4f transpose(mat4f m) {
+    mat4f t
+    t.x = v4(m.x.x, m.y.x, m.z.x, m.w.x)
+    t.y = v4(m.x.y, m.y.y, m.z.y, m.w.y)
+    t.z = v4(m.x.z, m.y.z, m.z.z, m.w.z)
+    t.w = v4(m.x.w, m.y.w, m.z.w, m.w.w)
+    return t
+}
+function quatf fromEuler(vec3f euler) {
+    float c1 = cos(euler.y * 0.5)
+    float s1 = sin(euler.y * 0.5)
+    float c2 = cos(euler.x * 0.5)
+    float s2 = sin(euler.x * 0.5)
+    float c3 = cos(euler.z * 0.5)
+    float s3 = sin(euler.z * 0.5)
+    quatf q
+    q.x = s1 * s2 * c3 + c1 * c2 * s3
+    q.y = s1 * c2 * c3 + c1 * s2 * s3
+    q.z = c1 * s2 * c3 - s1 * c2 * s3
+    q.w = c1 * c2 * c3 - s1 * s2 * s3
+    return q
+}
+function vec3f toEuler(quatf q) {
+    vec3f euler
+    float sinr_cosp = 2.0 * (q.w * q.x + q.y * q.z)
+    float cosr_cosp = 1.0 - 2.0 * (q.x * q.x + q.y * q.y)
+    euler.x = atan2(sinr_cosp, cosr_cosp)
+    float sinp = 2.0 * (q.w * q.y - q.z * q.x)
+    if (fabsf(sinp) >= 1.0) then
+        euler.y = copysign(1.5707963267948966, sinp)
+    else
+        euler.y = asin(sinp)
+    end
+    float siny_cosp = 2.0 * (q.w * q.z + q.x * q.y)
+    float cosy_cosp = 1.0 - 2.0 * (q.y * q.y + q.z * q.z)
+    euler.z = atan2(siny_cosp, cosy_cosp)
+    return euler
+}
+function quatf slerp(quatf a, quatf b, float t) {
+    float cosTheta = a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w
+    if (cosTheta < 0.0) then
+        b.x = -b.x
+        b.y = -b.y
+        b.z = -b.z
+        b.w = -b.w
+        cosTheta = -cosTheta
+    end
+    float angle = acos(cosTheta)
+    if (angle < 0.001) then
+        return a
+    end
+    float sinTheta = sin(angle)
+    float weightA = sin((1.0 - t) * angle) / sinTheta
+    float weightB = sin(t * angle) / sinTheta
+    quatf q
+    q.x = a.x * weightA + b.x * weightB
+    q.y = a.y * weightA + b.y * weightB
+    q.z = a.z * weightA + b.z * weightB
+    q.w = a.w * weightA + b.w * weightB
+    return q
+}
+function quatf fromMat4(mat4f m) {
+    quatf q
+    float trace = m.x.x + m.y.y + m.z.z
+    if (trace > 0.0) then
+        float s = 0.5 / sqrt(trace + 1.0)
+        q.w = 0.25 / s
+        q.x = (m.y.z - m.z.y) * s
+        q.y = (m.z.x - m.x.z) * s
+        q.z = (m.x.y - m.y.x) * s
+    elseif (m.x.x > m.y.y && m.x.x > m.z.z) then
+        float s = 2.0 * sqrt(1.0 + m.x.x - m.y.y - m.z.z)
+        q.w = (m.y.z - m.z.y) / s
+        q.x = 0.25 * s
+        q.y = (m.y.x + m.x.y) / s
+        q.z = (m.z.x + m.x.z) / s
+    elseif (m.y.y > m.z.z) then
+        float s = 2.0 * sqrt(1.0 + m.y.y - m.x.x - m.z.z)
+        q.w = (m.z.x - m.x.z) / s
+        q.x = (m.y.x + m.x.y) / s
+        q.y = 0.25 * s
+        q.z = (m.z.y + m.y.z) / s
+    else
+        float s = 2.0 * sqrt(1.0 + m.z.z - m.x.x - m.y.y)
+        q.w = (m.x.y - m.y.x) / s
+        q.x = (m.z.x + m.x.z) / s
+        q.y = (m.z.y + m.y.z) / s
+        q.z = 0.25 * s
+    end
+    return q
+}
+function mat4f fromQuat(quatf q) {
+    mat4f m
+    float xx = q.x * q.x
+    float yy = q.y * q.y
+    float zz = q.z * q.z
+    float xy = q.x * q.y
+    float xz = q.x * q.z
+    float yz = q.y * q.z
+    float wx = q.w * q.x
+    float wy = q.w * q.y
+    float wz = q.w * q.z
+    m.x = v4(1.0 - 2.0 * (yy + zz), 2.0 * (xy + wz), 2.0 * (xz - wy), 0.0)
+    m.y = v4(2.0 * (xy - wz), 1.0 - 2.0 * (xx + zz), 2.0 * (yz + wx), 0.0)
+    m.z = v4(2.0 * (xz + wy), 2.0 * (yz - wx), 1.0 - 2.0 * (xx + yy), 0.0)
+    m.w = v4(0.0, 0.0, 0.0, 1.0)
+    return m
+}
+function vec3f project(vec3f point, mat4f model, mat4f view, mat4f projection) {
+    vec4f clipSpace = mulMat4Vec(projection, mulMat4Vec(view, mulMat4Vec(model, v4(point.x, point.y, point.z, 1.0))))
+    vec3f screenSpace
+    screenSpace.x = clipSpace.x / clipSpace.w
+    screenSpace.y = clipSpace.y / clipSpace.w
+    screenSpace.z = clipSpace.z / clipSpace.w
+    return screenSpace
+}
+function vec3f unproject(vec3f point, mat4f model, mat4f view, mat4f projection) {
+    mat4f inv = inverse(mulMat4Mat4(projection, mulMat4Mat4(view, model)))
+    vec4f worldSpace = mulMat4Vec(inv, v4(point.x, point.y, point.z, 1.0))
+    if (worldSpace.w != 0.0) then
+        worldSpace.x /= worldSpace.w
+        worldSpace.y /= worldSpace.w
+        worldSpace.z /= worldSpace.w
+    end
+    return v3(worldSpace.x, worldSpace.y, worldSpace.z)
+}
+function rayf screenPointToRay(vec2f screenPoint, mat4f view, mat4f projection, vec2f screenSize) {
+    vec2f ndc
+    ndc.x = (2.0 * screenPoint.x) / screenSize.x - 1.0
+    ndc.y = 1.0 - (2.0 * screenPoint.y) / screenSize.y
+    vec4f clipSpace = v4(ndc.x, ndc.y, -1.0, 1.0)
+    mat4f invProj = inverse(projection)
+    vec4f eyeSpace = mulMat4Vec(invProj, clipSpace)
+    eyeSpace.z = -1.0
+    eyeSpace.w = 0.0
+    mat4f invView = inverse(view)
+    vec4f worldSpace = mulMat4Vec(invView, eyeSpace)
+    rayf ray
+    ray.origin = v3(invView.w.x, invView.w.y, invView.w.z)
+    ray.direction = vec3Normalize(v3(worldSpace.x, worldSpace.y, worldSpace.z))
+    return ray
+}
+function RayIntersectResult intersectRaySphere(rayf ray, spheref sphere) {
+    RayIntersectResult result
+    result.hit = false
+    result.t = 0.0
+    vec3f oc = vec3Sub(ray.origin, sphere.center)
+    float a = vec3Dot(ray.direction, ray.direction)
+    float b = 2.0 * vec3Dot(oc, ray.direction)
+    float c = vec3Dot(oc, oc) - sphere.radius * sphere.radius
+    float discriminant = b * b - 4.0 * a * c
+    if (discriminant < 0.0) then
+        return result
+    else
+        float sqrtDisc = sqrt(discriminant)
+        float t0 = (-b - sqrtDisc) / (2.0 * a)
+        float t1 = (-b + sqrtDisc) / (2.0 * a)
+        if (t0 > 0.0) then
+            result.t = t0
+            result.hit = true
+            return result
+        elseif (t1 > 0.0) then
+            result.t = t1
+            result.hit = true
+            return result
+        else
+            return result
+        end
+    end
+}
+// what BASIC features do we lack? this is a graphics math library like joml or directxmath after all.
+// missing featres:
+/*
+- vec3f reflect(vec3f v, vec3f n)
+- vec3f refract(vec3f v, vec3f n, float eta)
+- float fresnel(vec3f v, vec3f n, float eta)
+- mat4f lookAt(vec3f eye, vec3f center, vec3f up)
+- mat4f perspective(float fov, float aspect, float near, float far)
+- mat4f ortho(float left, float right, float bottom, float top, float near, float far)
+- mat4f inverse(mat4f m)
+- mat4f transpose(mat4f m)
+- quatf fromEuler(vec3f euler)
+- vec3f toEuler(quatf q)
+- quatf slerp(quatf a, quatf b, float t)
+- quatf fromMat4(mat4f m)
+- mat4f fromQuat(quatf q)
+- vec3f project(vec3f point, mat4f model, mat4f view
+*/
+// we already implemented lookAt, perspective, ortho, inverse, transpose, fromEuler, toEuler, slerp, fromMat4, fromQuat, project, unproject, screenPointToRay, intersectRaySphere.
+// lets implement the rest!
+function vec3f reflect(vec3f v, vec3f n) {
+    return vec3Sub(v, vec3Scale(n, 2.0 * vec3Dot(v, n)))
+}
+function vec3f refract(vec3f v, vec3f n, float eta) {
+    float cosi = clamp(vec3Dot(v, n), -1.0, 1.0)
+    float etai = 1.0
+    float etat = eta
+    vec3f n_refract = n
+    if (cosi < 0.0) then
+        cosi = -cosi
+    else
+        float temp_swap = etai
+        etai = etat
+        etat = temp_swap
+        n_refract = vec3Scale(n, -1.0)
+    end
+    float etaRatio = etai / etat
+    float k = 1.0 - etaRatio * etaRatio * (1.0 - cosi * cosi)
+    if (k < 0.0) then
+        return v3(0.0, 0.0, 0.0)
+    else
+        return vec3Add(vec3Scale(v, etaRatio), vec3Scale(n_refract, etaRatio * cosi - sqrt(k)))
+    end
+}
+function float fresnel(vec3f v, vec3f n, float eta) {
+    float cosi = clamp(vec3Dot(v, n), -1.0, 1.0)
+    float etai = 1.0
+    float etat = eta
+    if (cosi > 0.0) then
+        float temp_swap = etai
+        etai = etat
+        etat = temp_swap
+    end
+    float sint = etai / etat * sqrt(max(0.0, 1.0 - cosi * cosi))
+    if (sint >= 1.0) then
+        return 1.0
+    else
+        float cost = sqrt(max(0.0, 1.0 - sint * sint))
+        cosi = fabsf(cosi)
+        float Rs = ((etat * cosi) - (etai * cost)) / ((etat * cosi) + (etai * cost))
+        float Rp = ((etai * cosi) - (etat * cost)) / ((etai * cosi) + (etat * cost))
+        return (Rs * Rs + Rp * Rp) / 2.0
+    end
+}
+// what all now?
+/*
+- bool intersectRayAABB(rayf ray, aabbf box, ptr float t)
+- bool intersectRayTriangle(rayf ray, vec3f v0, vec3f v1, vec3f v2, ptr float t)
+- bool intersectRayPlane(rayf ray, vec3f planeNormal, float planeDistance, ptr float t)
+- bool intersectRayCapsule(rayf ray, vec3f p0, vec3f p1, float radius, ptr float t)
+- bool intersectRayCylinder(rayf ray, vec3f p0, vec3f p1, float radius, ptr float t)
+- bool intersectRayCone(rayf ray, vec3f apex, vec3f axis, float angle, ptr float t)
+- bool intersectRayDisc(rayf ray, vec3f center, vec3f normal, float radius, ptr float t)
+- bool intersectRayEllipsoid(rayf ray, vec3f center, vec3f radii, ptr float t)
+- bool intersectRayTorus(rayf ray, vec3f center, vec3f normal, float majorRadius, float minorRadius, ptr float t)
+- bool intersectRayMesh(rayf ray, meshf mesh, ptr float t)
+*/
+// We already have intersectRayAABB, let's implement the rest!
+function RayIntersectResult intersectRayTriangle(rayf ray, vec3f v0, vec3f v1, vec3f v2) {
+    RayIntersectResult result
+    result.hit = false
+    result.t = 0.0
+    vec3f edge1 = vec3Sub(v1, v0)
+    vec3f edge2 = vec3Sub(v2, v0)
+    vec3f h = vec3Cross(ray.direction, edge2)
+    float a = vec3Dot(edge1, h)
+    if (fabsf(a) < 0.000001) then
+        return result
+    end
+    float f = 1.0 / a
+    vec3f s = vec3Sub(ray.origin, v0)
+    float u = f * vec3Dot(s, h)
+    if (u < 0.0 || u > 1.0) then
+        return result
+    end
+    vec3f q = vec3Cross(s, edge1)
+    float v = f * vec3Dot(ray.direction, q)
+    if (v < 0.0 || u + v > 1.0) then
+        return result
+    end
+    float t_temp = f * vec3Dot(edge2, q)
+    if (t_temp > 0.000001) then
+        result.t = t_temp
+        result.hit = true
+        return result
+    else
+        return result
+    end
+}
+function RayIntersectResult intersectRayPlane(rayf ray, vec3f planeNormal, float planeDistance) {
+    RayIntersectResult result
+    result.hit = false
+    result.t = 0.0
+    float denom = vec3Dot(planeNormal, ray.direction)
+    if (fabsf(denom) > 0.000001) then
+        float t_temp = -(vec3Dot(planeNormal, ray.origin) + planeDistance) / denom
+        if (t_temp >= 0.0) then
+            result.t = t_temp
+            result.hit = true
+            return result
+        end
+    end
+    return result
+}
+function RayIntersectResult intersectRayCapsule(rayf ray, vec3f p0, vec3f p1, float radius) {
+    RayIntersectResult result
+    result.hit = false
+    result.t = 0.0
+    vec3f d = vec3Sub(p1, p0)
+    vec3f m = vec3Sub(ray.origin, p0)
+    vec3f n = ray.direction
+    float md = vec3Dot(m, d)
+    float nd = vec3Dot(n, d)
+    float dd = vec3Dot(d, d)
+    if (md < 0.0) then
+        float t_temp = vec3Dot(m, m) - 2.0 * md + dd
+        if (t_temp < 0.0) then
+            return result
+        end
+        t_temp = sqrt(t_temp) - md
+        if (t_temp >= 0.0) then 
+            result.t = t_temp
+            result.hit = true
+            return result
+        end
+    elseif (md > dd) then
+        float t_temp = vec3Dot(m, m) - 2.0 * md + dd
+        if (t_temp < 0.0) then
+            return result
+        end
+        t_temp = sqrt(t_temp) + md - dd
+        if (t_temp >= 0.0) then
+            result.t = t_temp
+            result.hit = true
+            return result
+        end
+    else
+        float t_temp = vec3Dot(m, m) - md * md / dd
+        if (t_temp < 0.0) then
+            return result
+        end
+        t_temp = sqrt(t_temp) - (md / dd) * nd
+        if (t_temp >= 0.0) then
+            result.t = t_temp
+            result.hit = true
+            return result
+        end
+    end
+    return result
+}
+function RayIntersectResult intersectRayCylinder(rayf ray, vec3f p0, vec3f p1, float radius) {
+    RayIntersectResult result
+    result.hit = false
+    result.t = 0.0
+    vec3f d = vec3Sub(p1, p0)
+    vec3f m = vec3Sub(ray.origin, p0)
+    vec3f n = ray.direction
+    float md = vec3Dot(m, d)
+    float nd = vec3Dot(n, d)
+    float dd = vec3Dot(d, d)
+    float a = dd * vec3Dot(n, n) - nd * nd
+    float k = vec3Dot(m, m) - radius * radius
+    float c = dd * k - md * md
+    if (fabsf(a) < 0.000001) then
+        if (c > 0.0) then
+            return result
+        end
+        if (md < 0.0) then
+            float t_temp = -md / nd
+            if (t_temp >= 0.0) then
+                result.t = t_temp
+                result.hit = true
+                return result
+            end
+        elseif (md > dd) then
+            float t_temp = (dd - md) / nd
+            if (t_temp >= 0.0) then
+                result.t = t_temp
+                result.hit = true
+                return result
+            end
+        else
+            float t_temp = 0.0
+            if (nd > 0.0) then
+                t_temp = -md / nd
+            else
+                t_temp = (dd - md) / nd
+            end
+            if (t_temp >= 0.0) then
+                result.t = t_temp
+                result.hit = true
+                return result
+            end
+        end
+        return result
+    end
+    float b = 2.0 * (dd * vec3Dot(m, n) - md * nd)
+    float discriminant = b * b - 4.0 * a * c
+    if (discriminant < 0.0) then
+        return result
+    end
+    float sqrtDisc = sqrt(discriminant)
+    float t0 = (-b - sqrtDisc) / (2.0 * a)
+    float t1 = (-b + sqrtDisc) / (2.0 * a)
+    if (t0 > t1) then
+        float temp_swap = t0
+        t0 = t1
+        t1 = temp_swap
+    end
+    float y0 = md + t0 * nd
+    float y1 = md + t1 * nd
+    if (y0 < 0.0) then
+        if (y1 < 0.0) then
+            return result
+        end
+        float t_temp = t0 + (t1 - t0) * (y0 / (y0 - y1))
+        if (t_temp >= 0.0) then
+            result.t = t_temp
+            result.hit = true
+            return result
+        end
+    elseif (y0 > dd) then
+        if (y1 > dd) then
+            return result
+        end
+        float t_temp = t0 + (t1 - t0) * ((y0 - dd) / (y0 - y1))
+        if (t_temp >= 0.0) then
+            result.t = t_temp
+            result.hit = true
+            return result
+        end
+    else
+        if (t0 >= 0.0) then
+            result.t = t0
+            result.hit = true
+            return result
+        end
+        if (t1 >= 0.0) then
+            result.t = t1
+            result.hit = true
+            return result
+        end
+    end
+    return result
+}
+function RayIntersectResult intersectRayCone(rayf ray, vec3f apex, vec3f axis, float angle) {
+    RayIntersectResult result
+    result.hit = false
+    result.t = 0.0
+    float cosAngle = cos(angle)
+    float cosAngleSq = cosAngle * cosAngle
+    vec3f co = vec3Sub(ray.origin, apex)
+    float vDotA = vec3Dot(ray.direction, axis)
+    float coDotA = vec3Dot(co, axis)
+    vec3f vPerp = vec3Sub(ray.direction, vec3Scale(axis, vDotA))
+    vec3f coPerp = vec3Sub(co, vec3Scale(axis, coDotA))
+    float a = cosAngleSq * vec3Dot(vPerp, vPerp) - vDotA * vDotA
+    float b = 2.0 * (cosAngleSq * vec3Dot(vPerp, coPerp) - vDotA * coDotA)
+    float c = cosAngleSq * vec3Dot(coPerp, coPerp) - coDotA * coDotA
+    float discriminant = b * b - 4.0 * a * c
+    if (discriminant < 0.0) then
+        return result
+    end
+    float sqrtDisc = sqrt(discriminant)
+    float t0 = (-b - sqrtDisc) / (2.0 * a)
+    float t1 = (-b + sqrtDisc) / (2.0 * a)
+    if (t0 > t1) then
+        float temp_swap = t0
+        t0 = t1
+        t1 = temp_swap
+    end
+    if (t0 >= 0.0) then
+        result.t = t0
+        result.hit = true
+        return result
+    end
+    if (t1 >= 0.0) then
+        result.t = t1
+        result.hit = true
+        return result
+    end
+    return result
+}
+function RayIntersectResult intersectRayDisc(rayf ray, vec3f center, vec3f normal, float radius) {
+    RayIntersectResult result
+    result.hit = false
+    result.t = 0.0
+    float denom = vec3Dot(normal, ray.direction)
+    if (fabsf(denom) < 0.000001) then
+        return result
+    end
+    float t_temp = vec3Dot(vec3Sub(center, ray.origin), normal) / denom
+    if (t_temp < 0.0) then
+        return result
+    end
+    vec3f p = vec3Add(ray.origin, vec3Scale(ray.direction, t_temp))
+    if (vec3Length(vec3Sub(p, center)) > radius) then
+        return result
+    end
+    result.t = t_temp
+    result.hit = true
+    return result
+}
+// beilive it or not, i set it to c just for syntax hightlighting, its still luabase syntax.
+function RayIntersectResult intersectRayEllipsoid(rayf ray, vec3f center, vec3f radii) {
+    RayIntersectResult result
+    result.hit = false
+    result.t = 0.0
+    vec3f m = vec3Sub(ray.origin, center)
+    vec3f n = ray.direction
+    float a = (n.x * n.x) / (radii.x * radii.x) + (n.y * n.y) / (radii.y * radii.y) + (n.z * n.z) / (radii.z * radii.z)
+    float b = 2.0 * ((m.x * n.x) / (radii.x * radii.x) + (m.y * n.y) / (radii.y * radii.y) + (m.z * n.z) / (radii.z * radii.z))
+    float c = (m.x * m.x) / (radii.x * radii.x) + (m.y * m.y) / (radii.y * radii.y) + (m.z * m.z) / (radii.z * radii.z) - 1.0
+    float discriminant = b * b - 4.0 * a * c
+    if (discriminant < 0.0) then
+        return result
+    end
+    float sqrtDisc = sqrt(discriminant)
+    float t0 = (-b - sqrtDisc) / (2.0 * a)
+    float t1 = (-b + sqrtDisc) / (2.0 * a)
+    if (t0 > t1) then
+        float temp_swap = t0
+        t0 = t1
+        t1 = temp_swap
+    end
+    if (t0 >= 0.0) then
+        result.t = t0
+        result.hit = true
+        return result
+    end
+    if (t1 >= 0.0) then
+        result.t = t1
+        result.hit = true
+        return result
+    end
+    return result
+}
+function RayIntersectResult intersectRayTorus(rayf ray, vec3f center, vec3f normal, float majorRadius, float minorRadius) {
+    RayIntersectResult result
+    result.hit = false
+    result.t = 0.0
+    vec3f m = vec3Sub(ray.origin, center)
+    vec3f n = ray.direction
+    float a = vec3Dot(n, n)
+    float b = 2.0 * vec3Dot(m, n)
+    float c = vec3Dot(m, m) + majorRadius * majorRadius - minorRadius * minorRadius
+    float d = vec3Dot(m, m) - majorRadius * majorRadius
+    float coeffs[5]
+    coeffs[0] = a * a
+    coeffs[1] = 2.0 * a * b
+    coeffs[2] = b * b + 2.0 * a * c
+    coeffs[3] = 2.0 * b * c
+    coeffs[4] = c * c - 4.0 * majorRadius * majorRadius * d
+    float roots[4]
+    // Note: Quartic solver not implemented - returning false
+    return result
+}
+// what all do we need next to make this a full math library?
+/*
+- bool intersectRayMesh(rayf ray, meshf mesh, ptr float t)
+- mat4f affineInverse(mat4f m)
+- mat4f orthonormalInverse(mat4f m)
+- mat4f compose(vec3f translation, quatf rotation, vec3f scale)
+- void decompose(mat4f m, ptr vec3f translation, ptr quatf rotation, ptr vec3f scale)
+- mat4f fromTRS(vec3f translation, quatf rotation, vec3f scale)
+- void toTRS(mat4f m, ptr vec3f translation, ptr quatf rotation, ptr vec3f scale)
+- mat4f fromSRT(vec3f scale, quatf rotation, vec3f translation)
+- void toSRT(mat4f m, ptr vec3f scale, ptr quatf rotation, ptr vec3f translation)
+- mat4f fromRS(quatf rotation, vec3f scale)
+- void toRS(mat4f m, ptr quatf rotation, ptr vec3f scale)
+- mat4f fromSR(vec3f scale, quatf rotation)
+*/
+// we already have intersectRayMesh, let's implement the rest!
+function mat4f affineInverse(mat4f m) {
+    mat4f inv
+    inv.x = v4(m.x.x, m.y.x, m.z.x, 0.0)
+    inv.y = v4(m.x.y, m.y.y, m.z.y, 0.0)
+    inv.z = v4(m.x.z, m.y.z, m.z.z, 0.0)
+    inv.w = v4(-vec3Dot(v3(m.x.x, m.y.x, m.z.x), v3(m.w.x, m.w.y, m.w.z)),-vec3Dot(v3(m.x.y, m.y.y, m.z.y), v3(m.w.x, m.w.y, m.w.z)),-vec3Dot(v3(m.x.z, m.y.z, m.z.z), v3(m.w.x, m.w.y, m.w.z)),1.0)
+    return inv
+}
+function mat4f orthonormalInverse(mat4f m) {
+    mat4f inv
+    inv.x = v4(m.x.x, m.y.x, m.z.x, 0.0)
+    inv.y = v4(m.x.y, m.y.y, m.z.y, 0.0)
+    inv.z = v4(m.x.z, m.y.z, m.z.z, 0.0)
+    inv.w = v4(-vec3Dot(v3(m.x.x, m.y.x, m.z.x), v3(m.w.x, m.w.y, m.w.z)),-vec3Dot(v3(m.x.y, m.y.y, m.z.y), v3(m.w.x, m.w.y, m.w.z)),-vec3Dot(v3(m.x.z, m.y.z, m.z.z), v3(m.w.x, m.w.y, m.w.z)),1.0)
+    return inv
+}
+function mat4f compose(vec3f translation, quatf rotation, vec3f scale) {
+    mat4f m
+    mat4f rot = fromQuat(rotation)
+    m.x = v4(rot.x.x * scale.x, rot.y.x * scale.y, rot.z.x * scale.z, 0.0)
+    m.y = v4(rot.x.y * scale.x, rot.y.y * scale.y, rot.z.y * scale.z, 0.0)
+    m.z = v4(rot.x.z * scale.x, rot.y.z * scale.y, rot.z.z * scale.z, 0.0)
+    m.w = v4(translation.x, translation.y, translation.z, 1.0)
+    return m
+}
+function void decompose(mat4f m, ptr vec3f translation, ptr quatf rotation, ptr vec3f scale) {
+    scale.x = vec3Length(v3(m.x.x, m.y.x, m.z.x))
+    scale.y = vec3Length(v3(m.x.y, m.y.y, m.z.y))
+    scale.z = vec3Length(v3(m.x.z, m.y.z, m.z.z))
+    if (scale.x > 0.0) then
+        m.x.x /= scale.x
+        m.y.x /= scale.x
+        m.z.x /= scale.x
+    end
+    if (scale.y > 0.0) then
+        m.x.y /= scale.y
+        m.y.y /= scale.y
+        m.z.y /= scale.y
+    end
+    if (scale.z > 0.0) then
+        m.x.z /= scale.z
+        m.y.z /= scale.z
+        m.z.z /= scale.z
+    end
+    *rotation = fromMat4(m)
+    translation.x = m.w.x
+    translation.y = m.w.y
+    translation.z = m.w.z
+}
+function mat4f fromTRS(vec3f translation, quatf rotation, vec3f scale) {
+    return compose(translation, rotation, scale)
+}
+function void toTRS(mat4f m, ptr vec3f translation, ptr quatf rotation, ptr vec3f scale) {
+    decompose(m, translation, rotation, scale)
+}
+function mat4f fromSRT(vec3f scale, quatf rotation, vec3f translation) {
+    return compose(translation, rotation, scale)
+}
+function void toSRT(mat4f m, ptr vec3f scale, ptr quatf rotation, ptr vec3f translation) {
+    decompose(m, translation, rotation, scale)
+}
+function mat4f fromRS(quatf rotation, vec3f scale) {
+    return compose(v3(0.0, 0.0, 0.0), rotation, scale)
+}
+function void toRS(mat4f m, ptr quatf rotation, ptr vec3f scale) {
+    vec3f x = v3(0.0, 0.0, 0.0)
+    decompose(m, &x, rotation, scale)
+}
+function mat4f fromSR(vec3f scale, quatf rotation) {
+    return compose(v3(0.0, 0.0, 0.0), rotation, scale)
+}
+function void toSR(mat4f m, ptr vec3f scale, ptr quatf rotation) {
+    vec3f x = v3(0.0, 0.0, 0.0)
+    decompose(m, &x, rotation, scale)
+}
