@@ -1,0 +1,42 @@
+/*
+Nice Math library.
+*/
+function float fClamp(float min, float max, float x){
+    
+    return x < min ? min : (x > max ? max : x)
+}
+function float fLerp(float a, float b, float t){
+    return a + t * (b - a)
+}
+function float precisefLerp(float a, float b, float t){
+    return (1 - t) * a + t * b
+}
+function int idsgn(double x){
+    return (x > 0) - (x < 0)
+}
+function float fMap(float x, float in_min, float in_max, float out_min, float out_max){
+    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
+}
+function float fSmoothStep(float edge0, float edge1, float x){
+    float t = (x - edge0) / (edge1 - edge0)
+    return (t * t * (3.0 - 2.0 * t))
+}
+function float wrap(double x, double min, double max){
+    return x - (max - min) * floor((x - min) / (max - min))
+}
+function bool isClose(float a, float b, float epsilon){
+    return fabsf(a - b) <= epsilon
+}
+function double sq(double x){
+    return x * x
+}
+function float invfLerp(float a, float b, float val){
+    return (val - a) / (b - a)
+}
+function float fStep(float edge, float x){
+    return x < edge ? 0.0 : 1.0
+}
+function float fFract(float x){
+    return x - floorf(x)
+}
+// double square wrap around.
